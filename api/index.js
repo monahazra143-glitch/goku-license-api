@@ -28,7 +28,7 @@ async function verify(b, bind) {
   const q = "licenses?key=eq." + enc + "&select=*";
   let L = (await db(q))[0];
   if (!L) return { ok: false, code: "nokey", msg: "This license key is not valid" };
-  if (L.status !== "active") return { ok: false, code: "blocked", msg: "This license has been blocked" };
+  if (L.status !== "active") return { ok: false, code: "blocked", msg: "This license has been blocked", reason: L.block_reason || "" };   // reason = Access blocked screen par dikhega
   const now = Date.now();
   if (!L.device_id) {
     if (!bind) return { ok: false, code: "unbound", msg: "License not activated" };
@@ -51,15 +51,15 @@ async function admin(b) {
   const enc = key ? encodeURIComponent(key) : "";
   if (a === "search") {
     const s = String(b.q || "").trim().replace(/[^A-Za-z0-9 \-_.@]/g, "");
-    let p = "licenses?select=key,type,days,status,device_id,activated_at,expires_at,note&limit=50";
+    let p = "licenses?select=key,type,days,status,device_id,activated_at,expires_at,note,block_reason&limit=50";
     p += s ? "&or=(key.ilike.*" + s + "*,device_id.ilike.*" + s + "*,note.ilike.*" + s + "*)"
            : "&activated_at=not.is.null&order=activated_at.desc";
     return { ok: true, rows: await db(p) };
   }
   if (!key) return { ok: false, msg: "bad key" };
   const patch = async (o) => ({ ok: true, rows: await db("licenses?key=eq." + enc, { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify(o) }) });
-  if (a === "block") return patch({ status: "blocked" });
-  if (a === "unblock") return patch({ status: "active" });
+  if (a === "block") return patch({ status: "blocked", block_reason: String(b.reason || "").trim().slice(0, 100) || null });
+  if (a === "unblock") return patch({ status: "active", block_reason: null });
   if (a === "reset") return patch({ device_id: null });
   if (a === "note") return patch({ note: String(b.note || "").slice(0, 200) });
   return { ok: false, msg: "unknown action" };
