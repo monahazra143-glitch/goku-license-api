@@ -15,7 +15,7 @@ button{cursor:pointer}.row{display:flex;gap:8px;margin-bottom:10px}.row input{fl
 <div class="row"><input id="pw" type="password" placeholder="Admin password"><button onclick="save()">OK</button></div>
 <div class="row"><input id="q" placeholder="key / device / note खोजो (ख़ाली = हाल में चालू हुईं)"><button onclick="go()">खोजो</button></div>
 <div class="st" id="st"></div>
-<div class="f"><button onclick="flt('')">चालू हुईं</button><button onclick="flt('unused')">Unused</button><button onclick="flt('ultra')">Ultra</button><button onclick="flt('blocked')">Blocked</button></div>
+<div class="f"><button onclick="flt('')">चालू हुईं</button><button onclick="flt('unused')">Unused</button><button onclick="flt('ultra')">Ultra</button><button onclick="flt('developer')">Developer</button><button onclick="flt('omkar')">Omkar</button><button onclick="flt('blocked')">Blocked</button></div>
 <div id="out"></div>
 <script>
 const $=id=>document.getElementById(id);
@@ -31,7 +31,7 @@ function flt(f){FLT=f;$('q').value='';go()}
 async function stats(){
   const s=await call({action:'stats'});
   if(!s.ok){$('st').innerHTML='';return}
-  $('st').innerHTML=`<div><b>${s.total}</b>कुल keys</div><div><b>${s.used}</b>चालू हुईं (फ़ोन पर)</div><div><b>${s.unused}</b>अभी बिना इस्तेमाल</div><div><b>${s.blocked}</b>Blocked</div><div><b>${s.ultraUsed} / ${s.ultra}</b>Ultra चालू / कुल</div>`;
+  $('st').innerHTML=`<div><b>${s.total}</b>कुल keys</div><div><b>${s.used}</b>चालू हुईं (फ़ोन पर)</div><div><b>${s.unused}</b>अभी बिना इस्तेमाल</div><div><b>${s.blocked}</b>Blocked</div><div><b>${s.ultraUsed} / ${s.ultra}</b>Ultra चालू / कुल</div><div><b>${s.devUsed} / ${s.dev}</b>Developer चालू / कुल</div><div><b>${s.omkUsed} / ${s.omk}</b>Omkar चालू / कुल</div>`;
 }
 async function go(){
   stats();
